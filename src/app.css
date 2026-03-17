@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #3b82f6;
+  --color-secondary: #8b5cf6;
+  --font-sans: "Inter", system-ui, sans-serif;
+}
+body {
+  font-family: var(--font-sans);
+}
