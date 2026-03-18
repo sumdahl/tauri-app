@@ -19,6 +19,8 @@ A cross-platform desktop application built with Tauri, SvelteKit, and TypeScript
 - [Node.js](https://nodejs.org/) (LTS version recommended)
 - [Rust](https://www.rust-lang.org/) toolchain
 - [pnpm](https://pnpm.io/) (recommended) or npm/yarn
+- For Android development: [Android Studio](https://developer.android.com/studio) with Android SDK
+- For iOS development: [Xcode](https://developer.apple.com/xcode/) (macOS only)
 
 ### Installation
 
@@ -30,8 +32,14 @@ pnpm install
 ### Development
 
 ```bash
-# Start the development server
+# Start the development server (Desktop)
 pnpm tauri dev
+
+# Start the Android development server
+pnpm tauri android dev
+
+# Start the iOS development server
+pnpm tauri ios dev
 ```
 
 This command starts the Vite development server and launches the Tauri application.
@@ -39,8 +47,14 @@ This command starts the Vite development server and launches the Tauri applicati
 ### Build
 
 ```bash
-# Build for production
+# Build for production (Desktop)
 pnpm tauri build
+
+# Build for Android
+pnpm tauri android build
+
+# Build for iOS
+pnpm tauri ios build
 ```
 
 The built application will be in `src-tauri/target/release/bundle`.
@@ -71,10 +85,11 @@ tauri-app/
 ## Features
 
 - Cross-platform desktop app (Windows, macOS, Linux)
+- Mobile support (Android, iOS)
 - Native system integration via Tauri
 - Hot module replacement during development
 - Type-safe communication between frontend and backend
-- Application state management with greeting counter
+- Application state management
 - Logging with env_logger
 - Error handling with thiserror
 - Form validation with Zod + Superforms
