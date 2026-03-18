@@ -68,6 +68,13 @@ tauri-app/
 - Hot module replacement during development
 - Type-safe communication between frontend and backend
 
+
+## For UI Components , we use ShadCN-Svelte
+[https://www.shadcn-svelte.com/themes]
+
+## For Form , use Formsnap & Superforms
+[https://svelte-4.shadcn-svelte.com/docs/components/form]
+
 ## License
 
 MIT
