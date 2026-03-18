@@ -1,16 +1,19 @@
 <script lang="ts">
-  import { invoke } from "@tauri-apps/api/core";
+  import { greet, getAppInfo, initializeApp } from "$lib/api";
   import Button from "$lib/components/ui/button/button.svelte";
   let name = $state("");
   let greetMsg = $state("");
+  let greetingCount = $state(0);
   let isLoading = $state(false);
-  async function greet(event: Event) {
+  async function handleGreet(event: Event) {
     event.preventDefault();
     if (!name.trim()) return;
     
     isLoading = true;
     try {
-      greetMsg = await invoke("greet", { name });
+      const response = await greet(name);
+      greetMsg = response.message;
+      greetingCount = response.greeting_count;
     } catch (error) {
       console.error("Failed to greet:", error);
     } finally {
@@ -34,7 +37,7 @@
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
       <h2 class="text-lg font-medium text-gray-900 mb-6">Get Started</h2>
       
-      <form onsubmit={greet} class="space-y-4">
+      <form onsubmit={handleGreet} class="space-y-4">
         <div>
           <label for="greet-input" class="block text-sm font-medium text-gray-700 mb-2">
             Your Name
@@ -68,6 +71,7 @@
       {#if greetMsg}
         <div class="mt-6 p-4 bg-primary-50 border border-primary-100 rounded-lg">
           <p class="text-primary-700 text-sm font-medium">{greetMsg}</p>
+          <p class="text-primary-600 text-xs mt-2">Total greetings: {greetingCount}</p>
         </div>
       {/if}
     </div>
