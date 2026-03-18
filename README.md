@@ -1,7 +1,73 @@
-# Tauri + SvelteKit + TypeScript
+# Tauri App
 
-This template should help get you started developing with Tauri, SvelteKit and TypeScript in Vite.
+A cross-platform desktop application built with Tauri, SvelteKit, and TypeScript.
 
-## Recommended IDE Setup
+## Tech Stack
 
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer).
+- **Frontend**: SvelteKit 2 + TypeScript
+- **Backend**: Tauri v2 (Rust)
+- **Styling**: Tailwind CSS v4
+- **Icons**: Lucide Svelte
+
+## Getting Started
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (LTS version recommended)
+- [Rust](https://www.rust-lang.org/) toolchain
+- [pnpm](https://pnpm.io/) (recommended) or npm/yarn
+
+### Installation
+
+```bash
+# Install dependencies
+pnpm install
+```
+
+### Development
+
+```bash
+# Start the development server
+pnpm tauri dev
+```
+
+This command starts the Vite development server and launches the Tauri application.
+
+### Build
+
+```bash
+# Build for production
+pnpm tauri build
+```
+
+The built application will be in `src-tauri/target/release/bundle`.
+
+## Project Structure
+
+```
+tauri-app/
+├── src/                    # SvelteKit frontend source
+│   ├── lib/               # Components and utilities
+│   │   └── components/    # UI components
+│   └── routes/            # SvelteKit routes
+├── src-tauri/             # Tauri/Rust backend source
+│   ├── src/               # Rust source files
+│   │   ├── lib.rs         # Library entry point
+│   │   └── main.rs        # Application entry point
+│   ├── Cargo.toml         # Rust dependencies
+│   └── tauri.conf.json    # Tauri configuration
+├── static/                # Static assets
+├── package.json            # Node.js dependencies
+└── svelte.config.js       # SvelteKit configuration
+```
+
+## Features
+
+- Cross-platform desktop app (Windows, macOS, Linux)
+- Native system integration via Tauri
+- Hot module replacement during development
+- Type-safe communication between frontend and backend
+
+## License
+
+MIT
