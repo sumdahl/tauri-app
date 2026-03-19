@@ -122,16 +122,27 @@ async fn signin_core(request: SigninRequest, db: sqlx::PgPool) -> Result<SigninR
 
 #[tauri::command]
 pub async fn signup(
-    request: SignupRequest,
+    fullname: String,
+    email: String,
+    password: String,
     state: State<'_, AppState>,
 ) -> Result<SignupResponse, AppError> {
-    signup_core(request, state.db.clone()).await
+    signup_core(
+        SignupRequest {
+            fullname,
+            email,
+            password,
+        },
+        state.db.clone(),
+    )
+    .await
 }
 
 #[tauri::command]
 pub async fn signin(
-    request: SigninRequest,
+    email: String,
+    password: String,
     state: State<'_, AppState>,
 ) -> Result<SigninResponse, AppError> {
-    signin_core(request, state.db.clone()).await
+    signin_core(SigninRequest { email, password }, state.db.clone()).await
 }

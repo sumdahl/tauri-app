@@ -1,4 +1,4 @@
-// Mirrors Rust structs in src/commands/auth.rs exactly
+// Shared frontend auth payloads and session types.
 
 export interface SignupRequest {
   fullname: string;
