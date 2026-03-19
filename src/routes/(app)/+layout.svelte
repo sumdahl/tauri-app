@@ -1,15 +1,17 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { theme } from '$lib/store/theme.svelte';
+  import { goto } from '$app/navigation';
   import { authStore } from '$lib/store/auth.svelte';
-  import '../app.css';
 
   let { children } = $props();
 
   onMount(() => {
-    theme.init();
-    authStore.init();
+    if (!authStore.isAuthenticated) {
+      goto('/login');
+    }
   });
 </script>
 
-{@render children()}
+{#if authStore.isAuthenticated}
+  {@render children()}
+{/if}

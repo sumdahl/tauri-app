@@ -14,9 +14,9 @@ importers:
       '@tauri-apps/plugin-opener':
         specifier: ^2
         version: 2.5.3
-      zod:
-        specifier: ^4.3.6
-        version: 4.3.6
+      tw-animate-css:
+        specifier: ^1.4.0
+        version: 1.4.0
     devDependencies:
       '@internationalized/date':
         specifier: ^3.10.0
@@ -66,15 +66,15 @@ importers:
       tailwindcss:
         specifier: ^4.2.1
         version: 4.2.1
-      tw-animate-css:
-        specifier: ^1.4.0
-        version: 1.4.0
       typescript:
         specifier: ~5.6.2
         version: 5.6.3
       vite:
         specifier: ^6.0.3
         version: 6.4.1(jiti@2.6.1)(lightningcss@1.31.1)
+      zod:
+        specifier: 3.24.1
+        version: 3.24.1
 
 packages:
 
@@ -1153,6 +1153,9 @@ packages:
     peerDependencies:
       zod: ^3.25 || ^4.0.14
 
+  zod@3.24.1:
+    resolution: {integrity: sha512-muH7gBL9sI1nciMZV67X5fTKKBLtwpZ5VBp1vsOQzj1MhrBZ4wlVCm3gedKZWLp0Oyel8sIGfeiz54Su+OVT+A==}
+
   zod@4.3.6:
     resolution: {integrity: sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==}
 
@@ -2076,4 +2079,7 @@ snapshots:
       zod: 4.3.6
     optional: true
 
-  zod@4.3.6: {}
+  zod@3.24.1: {}
+
+  zod@4.3.6:
+    optional: true

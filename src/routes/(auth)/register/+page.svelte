@@ -1,8 +1,8 @@
 <script lang="ts">
   import { superForm } from 'sveltekit-superforms';
-  import { signinSchema } from '$lib/schemas/auth';
+  import { signupSchema } from '$lib/schemas/auth';
   import { typedZodClient } from '$lib/schemas/superforms';
-  import { signin } from '$lib/service/auth';
+  import { signup } from '$lib/service/auth';
   import * as Form from '$lib/components/ui/form';
   import { Input } from '$lib/components/ui/input';
   import { Button } from '$lib/components/ui/button';
@@ -14,18 +14,22 @@
   let loading = $state(false);
 
   const form = superForm(
-    { email: '', password: '' },
+    { fullname: '', email: '', password: '', confirmPassword: '' },
     {
       SPA: true,
-      validators: typedZodClient(signinSchema),
+      validators: typedZodClient(signupSchema),
       onUpdate: async ({ form: formState }) => {
         if (!formState.valid) return;
         loading = true;
         serverError = null;
         try {
-          await signin(formState.data);
+          await signup({
+            fullname: formState.data.fullname,
+            email: formState.data.email,
+            password: formState.data.password,
+          });
         } catch (e) {
-          serverError = typeof e === 'string' ? e : 'Sign in failed. Please try again.';
+          serverError = typeof e === 'string' ? e : 'Registration failed. Please try again.';
         } finally {
           loading = false;
         }
@@ -45,8 +49,8 @@
 
   <div class="rounded-xl border border-border bg-card p-8 shadow-sm">
     <div class="mb-6">
-      <Typography variant="h3" class="text-foreground">Welcome back</Typography>
-      <Typography variant="muted" class="mt-1">Sign in to your account</Typography>
+      <Typography variant="h3" class="text-foreground">Create an account</Typography>
+      <Typography variant="muted" class="mt-1">Start tracking markets today</Typography>
     </div>
 
     {#if serverError}
@@ -56,6 +60,22 @@
     {/if}
 
     <form method="POST" use:enhance class="flex flex-col gap-4">
+      <Form.Field {form} name="fullname">
+        <Form.Control>
+          {#snippet children({ props })}
+            <Form.Label>Full name</Form.Label>
+            <Input
+              {...props}
+              type="text"
+              placeholder="John Doe"
+              bind:value={$formData.fullname}
+              autocomplete="name"
+            />
+          {/snippet}
+        </Form.Control>
+        <Form.FieldErrors />
+      </Form.Field>
+
       <Form.Field {form} name="email">
         <Form.Control>
           {#snippet children({ props })}
@@ -81,7 +101,23 @@
               type="password"
               placeholder="••••••••"
               bind:value={$formData.password}
-              autocomplete="current-password"
+              autocomplete="new-password"
+            />
+          {/snippet}
+        </Form.Control>
+        <Form.FieldErrors />
+      </Form.Field>
+
+      <Form.Field {form} name="confirmPassword">
+        <Form.Control>
+          {#snippet children({ props })}
+            <Form.Label>Confirm password</Form.Label>
+            <Input
+              {...props}
+              type="password"
+              placeholder="••••••••"
+              bind:value={$formData.confirmPassword}
+              autocomplete="new-password"
             />
           {/snippet}
         </Form.Control>
@@ -89,18 +125,18 @@
       </Form.Field>
 
       <Button type="submit" class="w-full mt-2" disabled={loading}>
-        {loading ? 'Signing in...' : 'Sign in'}
+        {loading ? 'Creating account...' : 'Create account'}
       </Button>
     </form>
 
     <div class="mt-6 text-center">
       <Typography variant="muted">
-        Don't have an account?{' '}
+        Already have an account?{' '}
         <button
-          onclick={() => goto('/register')}
+          onclick={() => goto('/login')}
           class="text-primary hover:underline font-medium"
         >
-          Create one
+          Sign in
         </button>
       </Typography>
     </div>
