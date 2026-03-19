@@ -1,12 +1,12 @@
 pub mod error;
-pub mod state;
 pub mod handlers;
+pub mod state;
 pub mod utils;
 
+use dotenvy::dotenv;
+use sqlx::postgres::PgPoolOptions;
 use state::AppState;
 use std::env;
-use sqlx::postgres::PgPoolOptions;
-use dotenvy::dotenv;
 
 #[tauri::command]
 fn hello_world() -> String {
@@ -14,7 +14,8 @@ fn hello_world() -> String {
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
-pub fn run() {
+// 1. Add `async` here
+pub async fn run() {
     // Load environment variables from .env file
     dotenv().ok();
 
@@ -24,10 +25,13 @@ pub fn run() {
 
     // Setup the database connection pool
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+
     let pool = PgPoolOptions::new()
         .max_connections(5)
-        .connect_lazy(&database_url)
-        .expect("Failed to create database pool.");
+        // 2. Change to `connect` and add `.await` to fail-fast if DB is down
+        .connect(&database_url)
+        .await
+        .expect("Failed to connect to the database. Is Docker running?");
 
     let app_state = AppState::new(pool);
 
