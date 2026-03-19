@@ -1,5 +1,8 @@
+pub mod commands;
+pub mod domain;
 pub mod error;
-pub mod handlers;
+pub mod repository;
+pub mod services;
 pub mod state;
 pub mod utils;
 
@@ -8,30 +11,28 @@ use sqlx::postgres::PgPoolOptions;
 use state::AppState;
 use std::env;
 
-#[tauri::command]
-fn hello_world() -> String {
-    "Hello from Tauri!".into()
-}
-
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
-// 1. Add `async` here
 pub async fn run() {
-    // Load environment variables from .env file
     dotenv().ok();
 
-    // Initialize logger
-    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
-    log::info!("Starting application...");
+    tracing_subscriber::fmt()
+        .with_env_filter(
+            tracing_subscriber::EnvFilter::from_default_env()
+                .add_directive("tauri_app=debug".parse().unwrap()),
+        )
+        .init();
 
-    // Setup the database connection pool
+    tracing::info!("Starting application...");
+
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
 
     let pool = PgPoolOptions::new()
         .max_connections(5)
-        // 2. Change to `connect` and add `.await` to fail-fast if DB is down
         .connect(&database_url)
         .await
-        .expect("Failed to connect to the database. Is Docker running?");
+        .expect("Failed to connect to the database. Is it running?");
+
+    tracing::info!("Database connected.");
 
     let app_state = AppState::new(pool);
 
@@ -39,8 +40,8 @@ pub async fn run() {
         .plugin(tauri_plugin_opener::init())
         .manage(app_state)
         .invoke_handler(tauri::generate_handler![
-            hello_world,
-            handlers::user::signup,
+            commands::auth::signup,
+            commands::auth::signin,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
