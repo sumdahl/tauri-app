@@ -59,6 +59,36 @@ pnpm tauri ios build
 
 The built application will be in `src-tauri/target/release/bundle`.
 
+### Standalone Backend Development
+
+If you want to work on or test the Rust backend separately from the Tauri application (e.g., with Postman or other HTTP clients), you can run it as a standalone HTTP server.
+
+```bash
+# Navigate to the Rust backend directory
+cd src-tauri
+
+# Run the standalone server
+cargo run --bin server
+```
+
+The server will typically run on `http://localhost:3000`.
+
+### Database Setup
+
+This project uses PostgreSQL, managed via Docker Compose.
+
+```bash
+# Ensure you are in the project root directory
+
+# Start the PostgreSQL database
+docker-compose up -d postgres
+
+# To stop the database
+docker-compose down postgres
+```
+
+The database will be accessible on `localhost:5433`.
+
 ## Project Structure
 
 ```
