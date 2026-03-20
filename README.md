@@ -44,6 +44,9 @@ pnpm tauri ios dev
 
 This command starts the Vite development server and launches the Tauri application.
 
+Auth requests are sent from the frontend to `PUBLIC_BACKEND_URL`. For Android development, that backend must be reachable from the physical device or emulator.
+During `pnpm tauri dev` and `pnpm tauri android dev`, Vite proxies `/auth/*` to `PUBLIC_BACKEND_URL`, so the device only needs to reach the Vite server.
+
 ### Build
 
 ```bash
@@ -73,6 +76,17 @@ cargo run --bin server
 
 The server will typically run on `http://localhost:3000`.
 
+### Frontend Backend URL
+
+Create a root `.env` from `.env.example` and point `PUBLIC_BACKEND_URL` at your HTTP backend:
+
+```bash
+PUBLIC_BACKEND_URL=http://localhost:3000
+```
+
+When running on Android hardware, `localhost` refers to the phone, not your development machine. Use a LAN IP or another reachable host instead.
+For `tauri android dev`, keeping `PUBLIC_BACKEND_URL=http://localhost:3000` is fine if the backend runs on your Mac, because the Vite dev server proxies `/auth/*` to that local backend.
+
 ### Database Setup
 
 This project uses PostgreSQL, managed via Docker Compose.
@@ -95,7 +109,7 @@ The database will be accessible on `localhost:5433`.
 tauri-app/
 ├── src/                    # SvelteKit frontend source
 │   ├── lib/               # Components and utilities
-│   │   ├── api.ts         # Tauri API wrappers
+│   │   ├── api.ts         # Frontend HTTP API wrappers
 │   │   └── components/    # UI components
 │   └── routes/            # SvelteKit routes
 ├── src-tauri/             # Tauri/Rust backend source
