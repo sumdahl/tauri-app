@@ -14,7 +14,6 @@ pub async fn run() {
     utils::env::init_tracing();
 
     let state = AppState::from_env().await.unwrap();
-
     tracing::info!("Starting application...");
 
     tauri::Builder::default()

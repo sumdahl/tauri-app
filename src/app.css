@@ -244,3 +244,14 @@
     @apply text-xs font-medium px-2 py-0.5 rounded-full;
   }
 }
+
+body {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}

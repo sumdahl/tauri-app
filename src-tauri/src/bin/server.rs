@@ -39,6 +39,7 @@ async fn main() -> Result<(), AppError> {
     init_tracing();
 
     let bind_address = env::var("BACKEND_ADDRESS").unwrap_or_else(|_| "0.0.0.0:3000".to_string());
+
     let state = AppState::from_env().await?;
 
     let app = Router::new()
@@ -50,7 +51,6 @@ async fn main() -> Result<(), AppError> {
 
     let listener = tokio::net::TcpListener::bind(&bind_address).await?;
     tracing::info!(%bind_address, "Auth backend listening");
-
     axum::serve(listener, app).await.map_err(AppError::Io)
 }
 
@@ -62,12 +62,12 @@ async fn signup(
     State(state): State<AppState>,
     Json(request): Json<SignupRequest>,
 ) -> Result<Json<SignupResponse>, AppError> {
-    auth::signup(request, &state.db).await.map(Json)
+    auth::signup(request, state.db()).await.map(Json) // ← state.db()
 }
 
 async fn signin(
     State(state): State<AppState>,
     Json(request): Json<SigninRequest>,
 ) -> Result<Json<SigninResponse>, AppError> {
-    auth::signin(request, &state.db).await.map(Json)
+    auth::signin(request, state.db()).await.map(Json) // ← state.db()
 }

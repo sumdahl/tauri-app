@@ -41,6 +41,12 @@ sqlx = { version = "0.7", features = [
     "chrono",
 ] }
 
+# HTTP client (for Android → Axum calls)
+reqwest = { version = "0.12", default-features = false, features = [
+    "json",
+    "rustls-tls",
+] }
+
 # Auth
 uuid = { version = "1", features = ["v4", "serde"] }
 argon2 = "0.5"

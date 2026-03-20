@@ -5,7 +5,7 @@
   "identifier": "com.sumdahl.tauri-app",
   "build": {
     "beforeDevCommand": "./scripts/dev-stack.sh",
-    "devUrl": "http://localhost:1420",
+    "devUrl": "http://10.200.230.210:1420",
     "beforeBuildCommand": "pnpm build",
     "frontendDist": "../build"
   },

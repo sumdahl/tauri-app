@@ -8,32 +8,36 @@ use uuid::Uuid;
 
 use crate::{error::AppError, repository::user_repo, utils::jwt};
 
-#[derive(Debug, Deserialize)]
+// ── Shared request / response types ─────────────────────────
+
+#[derive(Debug, Deserialize, Serialize)]
 pub struct SignupRequest {
     pub fullname: String,
     pub email: String,
     pub password: String,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct SignupResponse {
     pub message: String,
     pub user_id: String,
     pub token: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct SigninRequest {
     pub email: String,
     pub password: String,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct SigninResponse {
     pub message: String,
     pub user_id: String,
     pub token: String,
 }
+
+// ── DB path (desktop + server) ───────────────────────────────
 
 pub async fn signup(request: SignupRequest, db: &PgPool) -> Result<SignupResponse, AppError> {
     let fullname = request.fullname.trim().to_string();
@@ -45,11 +49,9 @@ pub async fn signup(request: SignupRequest, db: &PgPool) -> Result<SignupRespons
             "Full name must be at least 2 characters.".to_string(),
         ));
     }
-
     if email.is_empty() {
         return Err(AppError::InvalidInput("Email is required.".to_string()));
     }
-
     if password.len() < 8 {
         return Err(AppError::InvalidInput(
             "Password must be at least 8 characters.".to_string(),
@@ -61,10 +63,10 @@ pub async fn signup(request: SignupRequest, db: &PgPool) -> Result<SignupRespons
         Argon2::default()
             .hash_password(password.as_bytes(), &salt)
             .map(|hash| hash.to_string())
-            .map_err(|error| AppError::PasswordHash(error.to_string()))
+            .map_err(|e| AppError::PasswordHash(e.to_string()))
     })
     .await
-    .map_err(|error| AppError::PasswordHash(error.to_string()))??;
+    .map_err(|e| AppError::PasswordHash(e.to_string()))??;
 
     let user_id = Uuid::new_v4();
     user_repo::create_user(db, user_id, &fullname, &email, &hashed_password).await?;
@@ -85,7 +87,6 @@ pub async fn signin(request: SigninRequest, db: &PgPool) -> Result<SigninRespons
     if email.is_empty() {
         return Err(AppError::InvalidInput("Email is required.".to_string()));
     }
-
     if password.is_empty() {
         return Err(AppError::InvalidInput("Password is required.".to_string()));
     }
@@ -99,13 +100,12 @@ pub async fn signin(request: SigninRequest, db: &PgPool) -> Result<SigninRespons
     tokio::task::spawn_blocking(move || {
         let parsed_hash = PasswordHash::new(&hashed_password)
             .map_err(|_| AppError::Auth("Stored password hash is invalid.".to_string()))?;
-
         Argon2::default()
             .verify_password(password.as_bytes(), &parsed_hash)
             .map_err(|_| AppError::Auth("Invalid email or password.".to_string()))
     })
     .await
-    .map_err(|error| AppError::Auth(error.to_string()))??;
+    .map_err(|e| AppError::Auth(e.to_string()))??;
 
     let token = jwt::generate_token(&user.id).map_err(AppError::Jwt)?;
 
@@ -114,4 +114,61 @@ pub async fn signin(request: SigninRequest, db: &PgPool) -> Result<SigninRespons
         user_id: user.id.to_string(),
         token,
     })
+}
+
+// ── HTTP path (Android → Axum backend) ──────────────────────
+
+#[derive(Debug, Deserialize)]
+struct ApiError {
+    message: String,
+}
+
+pub async fn signup_http(
+    http: &reqwest::Client,
+    backend_url: &str,
+    request: SignupRequest,
+) -> Result<SignupResponse, AppError> {
+    let res = http
+        .post(format!("{}/auth/signup", backend_url))
+        .json(&request)
+        .send()
+        .await
+        .map_err(|e| AppError::Http(e.to_string()))?;
+
+    if !res.status().is_success() {
+        let err: ApiError = res
+            .json()
+            .await
+            .map_err(|e| AppError::Http(e.to_string()))?;
+        return Err(AppError::Auth(err.message));
+    }
+
+    res.json::<SignupResponse>()
+        .await
+        .map_err(|e| AppError::Http(e.to_string()))
+}
+
+pub async fn signin_http(
+    http: &reqwest::Client,
+    backend_url: &str,
+    request: SigninRequest,
+) -> Result<SigninResponse, AppError> {
+    let res = http
+        .post(format!("{}/auth/signin", backend_url))
+        .json(&request)
+        .send()
+        .await
+        .map_err(|e| AppError::Http(e.to_string()))?;
+
+    if !res.status().is_success() {
+        let err: ApiError = res
+            .json()
+            .await
+            .map_err(|e| AppError::Http(e.to_string()))?;
+        return Err(AppError::Auth(err.message));
+    }
+
+    res.json::<SigninResponse>()
+        .await
+        .map_err(|e| AppError::Http(e.to_string()))
 }
